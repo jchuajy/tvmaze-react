@@ -10,7 +10,8 @@ class Search extends React.Component {
   constructor(){
     super();
     this.state= {
-      inputValue: ""
+      inputValue: "",
+      showItems: 5
     };
     this.changeHandler = this.changeHandler.bind( this );
     this.showCard = this.showCard.bind( this );
@@ -45,22 +46,42 @@ class Search extends React.Component {
 
   showFullSchedule() {
 
-    return this.props.searchResults.map(item => {
-      if (item.image == null) {
+    console.log("full Scheldule", this.props.searchResults)
+    for (let i = 0; i < this.state.showItems; i ++) {
+
+      if (this.props.searchResults[i].image == null) {
+
         return (
           <div>
-          <h1>{item.name}</h1>
+            <h1>{this.props.searchResults[i].name}</h1>          
           </div>
         )
+
       } else {
         return (
-          <div>
-            <img src={item.image.medium} /> <br />
-            <h1>{item.name}</h1>
-          </div>
+                <div>
+                  <img src={this.props.searchResults[i].image.medium} /> <br />
+                  <h1>{this.props.searchResults[i].name}</h1>
+                </div>
         )
       }
-    })
+    }
+    // return this.props.searchResults.map(item => {
+    //   if (item.image == null) {
+    //     return (
+    //       <div>
+    //       <h1>{item.name}</h1>
+    //       </div>
+    //     )
+    //   } else {
+    //     return (
+    //       <div>
+    //         <img src={item.image.medium} /> <br />
+    //         <h1>{item.name}</h1>
+    //       </div>
+    //     )
+    //   }
+    // })
   }
 
   fullScheduleHandler() {
@@ -70,6 +91,36 @@ class Search extends React.Component {
   clickHandler(event) {
     this.props.clicky(this.state.inputValue)
   }
+
+  //Infinite Scrolling Start
+
+  componentDidMount() {
+    window.addEventListener('scroll', this.handleOnScroll);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.handleOnScroll);
+  }
+
+  handleOnScroll() {
+    // http://stackoverflow.com/questions/9439725/javascript-how-to-detect-if-browser-window-is-scrolled-to-bottom
+    const scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+
+    const scrollHeight =
+      (document.documentElement && document.documentElement.scrollHeight) || document.body.scrollHeight;
+
+    const clientHeight = document.documentElement.clientHeight || window.innerHeight;
+
+    const scrolledToBottom = Math.ceil(scrollTop + clientHeight) >= scrollHeight;
+
+    if (scrolledToBottom) {
+      let noOfItemsToShow = this.state.showItems
+      noOfItemsToShow = noOfItemsToShow + 5
+      setState({showItems: noOfItemsToShow})
+    }
+  }
+
+  //END infinite scroll
   render() {
 
     if (this.props.showFullScheduleCards == true) {
